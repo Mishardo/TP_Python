@@ -1,7 +1,7 @@
 from kivy.uix.widget import Widget
 from kivy.properties import NumericProperty
 from kivy.graphics import Rectangle, Color
-
+#Aca defino las propiedades del objeto
 class Jugador(Widget):
     velocidad_y = NumericProperty(0)
     
