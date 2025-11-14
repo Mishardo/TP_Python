@@ -18,6 +18,10 @@ class JuegoVisual(Screen):
         jugador = self.ids.player
         jugador.actualizar()
         
+        #Por ahora le sumo un punto por segundo
+        #Cuando tengamos los obstaculos, le sumamos el punto
+        self.puntuacion += dt 
+        
         altura = self.height
         #Si está tocando el suelo
         if jugador.y < 0:
@@ -28,7 +32,7 @@ class JuegoVisual(Screen):
             jugador.velocidad_y = 0
             
         if "puntaje_label" in self.ids:
-            self.ids.puntaje_label.text = str(self.puntuacion)
+            self.ids.puntaje_label.text = str(int(self.puntuacion))
     
     def on_touch_down(self, touch):
         try:
@@ -44,7 +48,7 @@ class JuegoVisual(Screen):
         self.puntuacion = 0
         
         if "puntaje_label" in self.ids:
-            self.ids.puntaje_label.text = str(self.puntuacion)
+            self.ids.puntaje_label.text = str(int(self.puntuacion))
             
     def game_over (self):
         self.resetear()
