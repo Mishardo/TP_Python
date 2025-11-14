@@ -4,8 +4,16 @@
     FloatLayout:
         id: juego_area
 
-    Label:
-        id: puntaje_label
-        text: "0"
-        pos_hint: {"center_x": 0.5, "top": 1}
-        font_size: "40sp"
+        #Puntaje
+        Label:
+            id: puntaje_label
+            text: "0"
+            pos_hint: {"center_x": 0.5, "top": 1}
+            font_size: "40sp"
+        
+        #Personaje
+        Jugador:
+            id: player
+            size_hint: None, None
+            size: 50, 50
+            pos: root.width * 0.3, root.height * 0.5
