@@ -29,10 +29,19 @@ class JuegoVisual(Screen):
         """Calcula el tamaño del hueco según la puntuación"""
         hueco_inicial = 300  # Hueco grande al inicio
         hueco_minimo = 150   # Hueco mínimo (no se hace más pequeño que esto)
-        reduccion_por_punto = 10  # Reduce 5 píxeles por cada punto
+        reduccion_por_punto = 5  # Reduce 5 píxeles por cada punto
         
         hueco = hueco_inicial - (self.puntuacion * reduccion_por_punto)
         return max(hueco, hueco_minimo)  # No menor al mínimo
+    
+    def calcular_distancia_obstaculos(self):
+        """Calcula la distancia entre obstáculos según la puntuación"""
+        distancia_inicial = 500  # Muy separados al inicio
+        distancia_minima = 300   # Distancia mínima entre obstáculos
+        reduccion_por_punto = 8  # Se acercan 8 píxeles por cada punto
+        
+        distancia = distancia_inicial - (self.puntuacion * reduccion_por_punto)
+        return max(distancia, distancia_minima)  # No menor a la mínima
     
     def crear_obstaculos(self):
         """Crea los obstáculos y los agrega a la pantalla"""
@@ -46,15 +55,18 @@ class JuegoVisual(Screen):
         
         print(f"Creando obstáculos - Ancho: {self.width}, Alto: {self.height}")  # Debug
         
+        distancia = self.calcular_distancia_obstaculos()
+        
         # Crear 3 pares de obstáculos espaciados
         for i in range(3):
-            par = ParObstaculos(self.width, self.height)
-            # Espaciar los obstáculos (empezar desde la derecha)
-            offset = self.width + i * 400
+            hueco_actual = self.calcular_hueco()
+            par = ParObstaculos(self.width, self.height, hueco_inicial=hueco_actual)
+            # Espaciar los obstáculos con distancia progresiva
+            offset = self.width + i * distancia
             par.superior.x = offset
             par.inferior.x = offset
             
-            print(f"Obstáculo {i}: x={offset}, superior_height={par.superior.height}, inferior_height={par.inferior.height}")  # Debug
+            print(f"Obstáculo {i}: x={offset}, distancia={distancia}, superior_height={par.superior.height}, inferior_height={par.inferior.height}")  # Debug
             
             # Agregar a la pantalla
             self.add_widget(par.inferior)
@@ -82,6 +94,21 @@ class JuegoVisual(Screen):
         # Actualizar obstáculos
         for par in self.pares_obstaculos:
             par.actualizar()
+            
+            # Si el obstáculo salió de la pantalla, reposicionarlo
+            if par.superior.right < 0:
+                # Encontrar el obstáculo que está más a la derecha
+                max_x = max(p.get_x() for p in self.pares_obstaculos)
+                distancia = self.calcular_distancia_obstaculos()
+                
+                # Posicionar este obstáculo después del último
+                nueva_x = max_x + distancia
+                
+                # Actualizar el hueco para el nuevo obstáculo
+                par.hueco = self.calcular_hueco()
+                
+                # Reiniciar con la nueva posición
+                par.reiniciar(nueva_x=nueva_x)
             
             # Sumar punto cuando el jugador pasa el obstáculo
             if not par.pasado and par.get_x() + 60 < jugador.x:
