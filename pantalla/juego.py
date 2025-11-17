@@ -44,33 +44,34 @@ class JuegoVisual(Screen):
         return max(distancia, distancia_minima)  # No menor a la mínima
     
     def crear_obstaculos(self):
-        """Crea los obstáculos y los agrega a la pantalla"""
-        # Limpiar obstáculos anteriores
+        # Evitar crear obstáculos antes de que exista tamaño real
+        if self.width == 0 or self.height == 0:
+            Clock.schedule_once(lambda dt: self.crear_obstaculos(), 0.05)
+            return
+
+        # Limpiar anteriores
         for par in self.pares_obstaculos:
             if par.superior.parent:
                 self.remove_widget(par.superior)
             if par.inferior.parent:
                 self.remove_widget(par.inferior)
+
         self.pares_obstaculos.clear()
-        
-        print(f"Creando obstáculos - Ancho: {self.width}, Alto: {self.height}")  # Debug
-        
+
         distancia = self.calcular_distancia_obstaculos()
-        
-        # Crear 3 pares de obstáculos espaciados
+
+        # Crear 3 pares
         for i in range(3):
-            hueco_actual = self.calcular_hueco()
-            par = ParObstaculos(self.width, self.height, hueco_inicial=hueco_actual)
-            # Espaciar los obstáculos con distancia progresiva
-            offset = self.width + i * distancia
-            par.superior.x = offset
-            par.inferior.x = offset
-            
-            print(f"Obstáculo {i}: x={offset}, distancia={distancia}, superior_height={par.superior.height}, inferior_height={par.inferior.height}")  # Debug
-            
-            # Agregar a la pantalla
+            hueco = self.calcular_hueco()
+            par = ParObstaculos(self.width, self.height, hueco_inicial=hueco)
+
+            x_pos = self.width + i * distancia
+            par.superior.x = x_pos
+            par.inferior.x = x_pos
+
             self.add_widget(par.inferior)
             self.add_widget(par.superior)
+
             self.pares_obstaculos.append(par)
             
     def update(self, dt):
@@ -97,18 +98,10 @@ class JuegoVisual(Screen):
             
             # Si el obstáculo salió de la pantalla, reposicionarlo
             if par.superior.right < 0:
-                # Encontrar el obstáculo que está más a la derecha
                 max_x = max(p.get_x() for p in self.pares_obstaculos)
                 distancia = self.calcular_distancia_obstaculos()
-                
-                # Posicionar este obstáculo después del último
                 nueva_x = max_x + distancia
-                
-                # Actualizar el hueco para el nuevo obstáculo
-                par.hueco = self.calcular_hueco()
-                
-                # Reiniciar con la nueva posición
-                par.reiniciar(nueva_x=nueva_x)
+                par.reiniciar(nueva_x=nueva_x, altura_pantalla=self.height)
             
             # Sumar punto cuando el jugador pasa el obstáculo
             if not par.pasado and par.get_x() + 60 < jugador.x:

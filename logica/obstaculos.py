@@ -55,23 +55,24 @@ class ParObstaculos:
         
         self.reiniciar()
     
-    def reiniciar(self):
-        """Reinicia la posición de los obstáculos"""
-        # Altura aleatoria para el hueco
+    def reiniciar(self, nueva_x=None, altura_pantalla=None):
+        if altura_pantalla is not None:
+            self.altura_pantalla = altura_pantalla
+
         altura_hueco = random.randint(150, int(self.altura_pantalla - 150))
-        
-        # Configurar obstáculo inferior
-        self.inferior.size_hint = (None, None)  # Desactivar size_hint
+
+        if nueva_x is None:
+            nueva_x = self.ancho_pantalla
+
         self.inferior.size = (self.ancho_obstaculo, altura_hueco - self.hueco // 2)
-        self.inferior.pos = (self.ancho_pantalla, 0)
-        
-        # Configurar obstáculo superior
+        self.inferior.pos = (nueva_x, 0)
+
         altura_superior = self.altura_pantalla - (altura_hueco + self.hueco // 2)
-        self.superior.size_hint = (None, None)  # Desactivar size_hint
         self.superior.size = (self.ancho_obstaculo, altura_superior)
-        self.superior.pos = (self.ancho_pantalla, altura_hueco + self.hueco // 2)
-        
+        self.superior.pos = (nueva_x, altura_hueco + self.hueco // 2)
+
         self.pasado = False
+
     
     def actualizar(self):
         """Actualiza la posición de ambos obstáculos"""
